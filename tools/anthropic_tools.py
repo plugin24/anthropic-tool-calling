@@ -93,6 +93,28 @@ class AnthropicTools:
         except FileNotFoundError:
             return f"Error: {file_path} not found"
     
+    def create_file(self, file_path: str, content: str = ''):
+        """
+        Creates a new file and writes the provided content to it. 
+        If no content is provided, it creates an empty file.
+
+        Args:
+            file_path (str): The path where the new file will be created.
+            content (str): The content to be written into the new file (default is an empty string).
+
+        Returns:
+            str: Success message if the file is created and written successfully, otherwise an error message.
+        """
+        try:
+            # 'x' mode will create a new file, and raise an error if it already exists
+            with open(file_path, 'x') as f:
+                f.write(content)
+            return f"File created successfully at {file_path}."
+        except FileExistsError:
+            return f"Error: File already exists at {file_path}."
+        except Exception as e:
+            return f"Error: {e}"
+
     # def ask_user_permission(self, question):
 
     #     print(question)
