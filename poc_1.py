@@ -4,6 +4,7 @@ import os
 # from langsmith import traceable
 from tools.anthropic_tools import AnthropicTools
 import sys
+from prompts.general_prompt import prompt1
 
 client = anthropic.Anthropic()
 
@@ -63,7 +64,7 @@ delete_file_tool = {
 
 write_files_tool = {
     "name" : "write_file",
-    "description" : "This tool helps in writing new code in the file, it overrites the original code",
+    "description" : "This tool helps in writing new code in the file. It checks if the file is present, if its not present, it can create file as well.",
     "input_schema" : {
         "type" : "object",
         "properties" : {
@@ -119,7 +120,7 @@ def process_tool_call(tool_name, tool_input):
         return tools.delete_file(tool_input['file_path'])
 
 # @traceable
-def agent_smith():
+def agent_smith(system_prompt):
     user_message = input("\nUser: ")
     messages = [{"role": "user", "content": user_message}]
 
@@ -131,19 +132,19 @@ def agent_smith():
                 break
             messages.append({"role": "user", "content": user_message})
 
-        system_message1 = "You are an AI coding assitant, your job is to find out the files that are necessary to change based on user's query. You have tools for this job, but you should only use them when its necessary, if the tool is not required, then don;t use it. Current working directory/root directory is - D:\claude-dev\claude-dev"
-        system_message2 = """You are an AI coding assistant, your job is to help user in coding by doing tasks given by user. To complete those tasks, you may use tools provided to you. But only use tools when its necessary to use them. Current working directory/root directory is - D:\claude-dev\claude-dev
-        You can also take permission from user."""
+        # system_message1 = "You are an AI coding assitant, your job is to find out the files that are necessary to change based on user's query. You have tools for this job, but you should only use them when its necessary, if the tool is not required, then don;t use it. Current working directory/root directory is - D:\claude-dev\claude-dev"
+        # system_message2 = """You are an AI coding assistant, your job is to help user in coding by doing tasks given by user. To complete those tasks, you may use tools provided to you. But only use tools when its necessary to use them. Current working directory/root directory is - D:\claude-dev\claude-dev
+        # You can also take permission from user."""
         response = client.messages.create(
             model="claude-3-5-sonnet-20240620",
-            system=system_message2,
+            system=system_prompt,
             messages=messages,
-            max_tokens=300,
+            max_tokens=1000,
             temperature=0,
             tools=[tree_map_tool, read_files_tool, write_files_tool, delete_file_tool]
         )
 
-        print(response)
+        print("\n", response.content[0].text, "\n")
         print("#"*100)
         messages.append({"role": "assistant", "content": response.content})
         #If Claude stops because it wants to use a tool:
@@ -173,7 +174,9 @@ def agent_smith():
 
 
 if __name__ == "__main__":
-    agent_smith()
+
+    system_prompt = prompt1()
+    agent_smith(system_prompt)
 
 # user_message = input("\nUser: ")
 # messages = [{"role": "user", "content": user_message}]
