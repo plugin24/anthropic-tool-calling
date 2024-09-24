@@ -1,7 +1,7 @@
 import os
 # from langchain.agents import tool
 
-class Tools:
+class AnthropicTools:
 
     def __init__(self) -> None:
         pass
@@ -78,12 +78,28 @@ class Tools:
             return f"Error: {file_path} not found"
     
     # @tool
-    def write_file(self, file_path: str, file_contents):
+    def write_file(self, file_path: str, new_code: str):
         try:
             with open(file_path, 'w') as f:
-                f.write(file_contents)
+                f.write(new_code)
+        except Exception as e:
+            return f"Error: {e}"
+
+
+    def delete_file(self, file_path: str):
+        try:
+            os.remove(file_path)
+            return "file removed successfully"
         except FileNotFoundError:
             return f"Error: {file_path} not found"
+    
+    # def ask_user_permission(self, question):
 
-    
-    
+    #     print(question)
+    #     permission = input("\nDo you give permission?(Yes/No)")
+
+    #     if permission.lower() == "yes" or permission.lower() == "no":
+    #         return permission.lower()
+    #     else:
+    #         print("\nInvalid input\n")
+    #         self.ask_user_permission(question)
